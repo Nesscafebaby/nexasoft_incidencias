@@ -10,9 +10,14 @@ class GestorIncidencias {
     incidencias = await datos.leer();
   }
 
-  List<Incidencia> buscar(String texto) {
-    if (texto.trim().isEmpty) return incidencias;
-    return incidencias.where((x) => x.titulo.contains(texto)).toList();
+ List<Incidencia> buscar(String texto) {
+  final q = texto.trim().toLowerCase();
+    if (q.isEmpty) return incidencias;
+    return incidencias
+        .where((x) =>
+            x.titulo.toLowerCase().contains(q) ||
+            x.descripcion.toLowerCase().contains(q))
+        .toList();
   }
 
   Incidencia? porId(String id) {
