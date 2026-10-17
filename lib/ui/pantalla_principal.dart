@@ -186,6 +186,8 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text('${item.id}  ·  ${item.cliente}'),
+                                              const SizedBox(height: 4),
+                                              Text('Prioridad: ${item.prioridad}'),
                                               const SizedBox(height: 6),
                                               Text(item.estado, style: TextStyle(
                                                 color: colorEstado(item.estado), fontWeight: FontWeight.bold,
