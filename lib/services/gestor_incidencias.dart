@@ -9,15 +9,34 @@ class GestorIncidencias {
     incidencias = await datos.leer();
   }
 
-  // BUG-002: ignora mayúsculas, recorta espacios y busca en título y descripción
-  List<Incidencia> buscar(String texto) {
+  // FEAT-002: aplica texto, estado y prioridad a la vez.
+  // 'Todos' y 'Todas' significan sin filtro. Con texto vacío devuelve
+  // los registros que cumplen los filtros activos.
+  static List<Incidencia> filtrar(
+    List<Incidencia> lista, {
+    String texto = '',
+    String estado = 'Todos',
+    String prioridad = 'Todas',
+  }) {
     final q = texto.trim().toLowerCase();
-    if (q.isEmpty) return incidencias;
-    return incidencias
-        .where((x) =>
-            x.titulo.toLowerCase().contains(q) ||
-            x.descripcion.toLowerCase().contains(q))
-        .toList();
+    return lista.where((x) {
+      final coincideTexto = q.isEmpty ||
+          x.titulo.toLowerCase().contains(q) ||
+          x.descripcion.toLowerCase().contains(q);
+      final coincideEstado = estado == 'Todos' || x.estado == estado;
+      final coincidePrioridad =
+          prioridad == 'Todas' || x.prioridad == prioridad;
+      return coincideTexto && coincideEstado && coincidePrioridad;
+    }).toList();
+  }
+
+  List<Incidencia> buscar(
+    String texto, {
+    String estado = 'Todos',
+    String prioridad = 'Todas',
+  }) {
+    return filtrar(incidencias,
+        texto: texto, estado: estado, prioridad: prioridad);
   }
 
   Incidencia? porId(String id) {
@@ -32,7 +51,7 @@ class GestorIncidencias {
     return incidencias.where((x) => x.estado == estado).length;
   }
 
-  // BUG-001: ahora guarda el cambio
+  // BUG-001: guarda el cambio
   Future<void> cambiarEstado(String id, String estado) async {
     for (var i = 0; i < incidencias.length; i++) {
       if (incidencias[i].id == id) {
@@ -43,7 +62,7 @@ class GestorIncidencias {
     await datos.guardar(incidencias);
   }
 
-  // FEAT-001: cambiar la prioridad y guardarla
+  // FEAT-001
   Future<void> cambiarPrioridad(String id, String prioridad) async {
     final item = porId(id);
     if (item == null) return;
